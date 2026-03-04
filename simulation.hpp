@@ -24,7 +24,7 @@ const ftype acceldelta = 1e-4, steerdelta = 1e-2;
 class agent {
     friend class simulationinstance;
 
-    ftype aclip = 0.5, steerclip = PI / 3;
+    ftype aclip = 0.5, steerclip = PI / 6, vclip = 0.01;
     shape egogeometry = {rotate(point(0.02, 0), point(0, 0), 0),
                          rotate(point(0.02, 0), point(0, 0), 2 * PI / 3),
                          rotate(point(0.02, 0), point(0, 0), 4 * PI / 3)};
@@ -33,6 +33,7 @@ class agent {
 
     void update() {
         v += clip(acceleration, aclip), theta += clip(steer, steerclip),
+            v = clip(v, vclip),
             egogeometry =
                 rotate(egogeometry, point(0, 0), clip(steer, steerclip));
         r = r + v * point(cos(theta), sin(theta));
@@ -57,9 +58,6 @@ class agent {
 };
 
 class simulationinstance {
-    bool humanmode, visualmode, blind;
-    int currentactive;
-
     string debuglog;
 
     envmap mp;
@@ -69,10 +67,19 @@ class simulationinstance {
     bool collision = false;
     double endtime, currenttime;
 
-    array<point, rays> raycastagent(const agent& a) {
+    array<point, rays> raycastagent(const agent& a,
+                                    const ftype& noisedeviation = 0) {
+        default_random_engine gen;
+        normal_distribution<ftype> nd(0, noisedeviation);
+
         array<point, rays> res;
-        for (int i = 0; i < rays; i++)
-            res[i] = raycast(a.r, mp, 2 * PI * i / rays + a.theta);
+        ftype theta;
+
+        for (int i = 0; i < rays; i++) {
+            theta = ur(rng);
+            res[i] = raycast(a.r, mp, 2 * PI * i / rays + a.theta) +
+                     nd(gen) * point(cos(2 * PI * theta), sin(2 * PI * theta));
+        }
 
         return res;
     }
@@ -103,12 +110,15 @@ class simulationinstance {
     }
 
    public:
+    bool humanmode, visualmode, blind;
+    int currentactive;
+
     simulationinstance(const array<agent, playercount>& playerlist,
                        const ftype& en) {
         mp = genobs(10, 0.1, 10);
         players = playerlist;
         endtime = en, currenttime = 0, collision = false, humanmode = true,
-        blind = false, currentactive = 0;
+        visualmode = true, blind = false, currentactive = 0;
     }
 
     void run() {

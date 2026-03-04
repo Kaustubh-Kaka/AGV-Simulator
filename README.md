@@ -24,7 +24,7 @@ If you are using an Apple silicon Mac and installed raylib with homebrew, your c
 clang++ main.cpp -O3 -o rendered -I /opt/homebrew/include -L /opt/homebrew/lib -lraylib -framework OpenGL -framework Cocoa -framework IOKit
 ```
 
-Yout first need to create the agents in the simulation
+You first need to create the agents in the simulation
 
 ```c
 #include "draw.hpp"
@@ -78,10 +78,10 @@ int main() {
 }
 ```
 
-You also need to specify a map to run the simulation that you can choose to create yourself or use the given random map generator for, please note that the raycasting algorithm only handles convex obstacles and in general `shape = vector<point>` is assumed to be a convex polygon, if you wish to use nonconvex polygons please decompose then into convex polygons first. The random map generator guarantees non intersecting convex obstacles given an initial random seed.
+You also need to specify a map to run the simulation that you can choose to create yourself or use the given random map generator for, please note that the raycasting algorithm only handles convex obstacles and in general `shape = vector<point>` is assumed to be a convex polygon, if you wish to use nonconvex polygons please decompose them into convex polygons first. The random map generator guarantees non intersecting convex obstacles given an initial random seed.
 
 For a more detailed and complete documentation of the library helper functions you can refer to the in code comments next to the forward declerations.
 
 I will also post a rolling log of knows bugs, patches and backwards compatible API changes here, most changes will be algorithmic optimizations and won't change functionality in any way.
 
-Please feel free to contact me for any bugs or suggestions on [discord @Intricacies_](https://discordapp.com/users/1287657787668697091).
+Please feel free to contact me for any bugs or suggestions on [discord @intricacies_](https://discordapp.com/users/1287657787668697091).

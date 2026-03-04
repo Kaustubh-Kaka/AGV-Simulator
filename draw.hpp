@@ -10,11 +10,17 @@ const ftype pointradius = 2, lineweight = 2;
 
 // declerations
 
+// returns the screen coordinates of a point
 point transfer(const point& a);
+// draws a point to the screen
 void drawpoint(const point& a, const Color& c = WHITE);
+// draws a line segment
 void drawline(const point& a, const point& b, const Color& c = WHITE);
+// draws an arbitrary collection of points
 void drawscatter(const vector<point>& a, const Color& c = WHITE);
+// draws a polygon assumed to be given in the order of points
 void drawpolygon(const vector<point>& a, const Color& fc = WHITE);
+// same as previous but only draws boundary of polygon
 void drawpolygonboundary(const vector<point>& a, const Color c = RED);
 
 // implementations
@@ -50,4 +56,4 @@ void drawpolygonboundary(const vector<point>& a, const Color c) {
     DrawLineEx(transfer(a[0]), transfer(a[n - 1]), lineweight, c);
 
     for (int i = 0; i < n; i++) drawpoint(a[i]);
-}  // depends on drawopoint
+}  // depends on drawpoint

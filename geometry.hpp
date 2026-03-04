@@ -50,6 +50,7 @@ struct point {
     }
 };
 
+// a convex shape
 using shape = vector<point>;
 using segment = pair<point, point>;
 using triangle = array<point, 3>;
@@ -60,32 +61,49 @@ ostream& operator<<(ostream& out, const point& a);
 point operator+(const point& a, const point& b);
 point operator-(const point& a, const point& b);
 point operator*(const ftype& scalar, const point& a);
+// rotates a point about another point by angle radians
 point rotate(const point& a, const point& about, const ftype& angle);
+// finds the cross product of two points assumed to be vectors from the origin
 ftype crossp(const point& a, const point& b);
+// returns -1 0 or 1 depending on whether (abc) is a left straight or right turn
 int orientation(const point& a, const point& b, const point& c);
+// returns the angle between the ray from the origin to a and the x axis
 ftype arg(const point& a);
+// returns the distance between two points
 ftype dist(const point& a, const point& b = {0, 0});
 ostream& operator<<(ostream& out, const segment& a);
 ostream& operator<<(ostream& out, const vector<point>& a);
+// returns the convex hull of an arbitrary collection of points
 vector<point> convexhull(vector<point> a);
 vector<point> operator*(const ftype& scalar, const vector<point>& a);
 vector<point> operator+(const point& vec, const vector<point>& a);
 vector<point> operator+(const vector<point>& a, const point& vec);
 vector<point> operator-(const vector<point>& a, const point& vec);
+// rotates a shape about a point by angle
 vector<point> rotate(const vector<point>& a, const point& about,
                      const ftype& angle);
+// returns the minkowski sum of two points
 vector<point> minkowskisum(const vector<point>& a, const vector<point>& b);
 vector<point> operator+(const vector<point>& a, const vector<point>& b);
 vector<point> operator-(const vector<point>& a, const vector<point>& b);
+// returns true if a point is above a line segment and false otherwise
 bool pointlocation(const segment& a, const point& p);
+// returns true if a point is inside a triangle and false otherwise
 bool insidetriangle(const triangle& a, const point& p);
+// returns true if a point is inside a convex polygon and false otherwise
 bool contains(const vector<point>& a, const point& p);
+// returns true if two convex polygons intersect and false otherwise
 bool intersect(const vector<point>& a, const vector<point>& b);
+// returns the intersection point of a ray and a segment
 point raycast(const point& p, const segment& a, const ftype& angle);
+// returns the closest intersection point of a ray and a shape
 point raycast(const point& p, const vector<point>& a, const ftype& angle);
+// returns the closest intersection point of a ray and a list of shapes
 point raycast(const point& p, const vector<vector<point>>& a,
               const ftype& angle);
+// returns a random convex polygon
 vector<point> randomconvex(const ftype& scale = 1, const ftype& offset = 5);
+// returns a set of non intersecting convex polygons
 vector<vector<point>> genobs(const int& n, const ftype& scale,
                              const ftype& offset);
 
