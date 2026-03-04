@@ -22,6 +22,9 @@ using namespace std::chrono;
 using ftype = float;
 const ftype eps = 1e-7, mdist = 1e9;
 
+mt19937_64 rng(542);
+uniform_real_distribution<> ur(0, 1);
+
 struct point {
     ftype x, y;
 
@@ -82,6 +85,9 @@ point raycast(const point& p, const segment& a, const ftype& angle);
 point raycast(const point& p, const vector<point>& a, const ftype& angle);
 point raycast(const point& p, const vector<vector<point>>& a,
               const ftype& angle);
+vector<point> randomconvex(const ftype& scale = 1, const ftype& offset = 5);
+vector<vector<point>> genobs(const int& n, const ftype& scale,
+                             const ftype& offset);
 
 // implementations
 
@@ -246,8 +252,8 @@ point raycast(const point& p, const segment& s, const ftype& angle) {
 }
 
 point raycast(const point& p, const vector<point>& a, const ftype& angle) {
-    point ans = raycast(p, segment(a[0], a[1]), angle);
-    for (int i = 1; i < a.size(); i++) {
+    point ans = {mdist, mdist};
+    for (int i = 0; i < a.size(); i++) {
         point temp = raycast(p, segment(a[i], a[(i + 1) % a.size()]), angle);
         if (dist(p, temp) < dist(p, ans)) ans = temp;
     }
@@ -256,10 +262,39 @@ point raycast(const point& p, const vector<point>& a, const ftype& angle) {
 
 point raycast(const point& p, const vector<vector<point>>& a,
               const ftype& angle) {
-    point ans = raycast(p, a[0], angle);
-    for (int i = 1; i < a.size(); i++) {
+    point ans = {mdist, mdist};
+    for (int i = 0; i < a.size(); i++) {
         point temp = raycast(p, a[i], angle);
         if (dist(p, temp) < dist(p, ans)) ans = temp;
     }
     return ans;
 }
+
+vector<point> randomconvex(const ftype& scale, const ftype& offset) {
+    const int n = 50, nmax = 1e5;
+    vector<point> a(n);
+
+    for (int i = 0; i < n; i++)
+        a[i].x = 2 * ur(rng) - 1, a[i].y = 2 * ur(rng) - 1;
+
+    ftype theta = 2 * PI * ur(rng), r = offset * ur(rng);
+    for (int i = 0; i < n; i++) a[i] = a[i] + r * point(cos(theta), sin(theta));
+
+    for (int i = 0; i < n; i++) a[i] = scale * a[i];
+    return convexhull(a);
+};
+
+vector<vector<point>> genobs(const int& n, const ftype& scale,
+                             const ftype& offset) {
+    vector<vector<point>> obs;
+    while (obs.size() < n) {
+        obs.push_back(randomconvex(scale, offset));
+        for (int i = 0; i < obs.size() - 1; i++)
+            if (intersect(obs[i], obs[obs.size() - 1])) {
+                obs.pop_back();
+                break;
+            }
+    }
+    obs.push_back({point(1, 1), point(1, -1), point(-1, -1), point(-1, 1)});
+    return obs;
+};

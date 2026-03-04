@@ -4,7 +4,8 @@
 
 // constants and defines
 
-const int screenWidth = 600, screenHeight = 600;
+constexpr ftype screenWidth = 600, screenHeight = 600,
+                scale = min(screenHeight, screenWidth) / 2;
 const ftype pointradius = 2, lineweight = 2;
 
 // declerations
@@ -19,8 +20,9 @@ void drawpolygonboundary(const vector<point>& a, const Color c = RED);
 // implementations
 
 point transfer(const point& a) {
-    return {screenWidth / 2 + a.x, screenHeight / 2 - a.y};
-}  // the coordinate plane is [-1, 1] X [-1, 1]
+    return {screenWidth / 2 + scale * a.x, screenHeight / 2 - scale * a.y};
+}  // the coordinate plane is [-1, 1] X [-1, 1] for a square window and [-1, 1]
+   // along the smaller axis otherwise
 
 void drawpoint(const point& a, const Color& c) {
     DrawCircleV(transfer(a), pointradius, c);
