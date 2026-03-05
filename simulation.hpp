@@ -42,7 +42,6 @@ class agent {
     void draw() { drawpolygonboundary(r + egogeometry); }
 
    public:
-    // subtask 1
     function<void(const envmap&, const array<pair<point, point>, playercount>&,
                   const array<point, rays>&, const agent&, ftype&, ftype&)>
         calculate_1 =
@@ -51,7 +50,6 @@ class agent {
                const array<point, rays>& raycasts, const agent& curplayer,
                ftype& a, ftype& steer) {};
 
-    // subtask 2
     function<void(const array<point, rays>&, const agent&, ftype&, ftype&)>
         calculate_2 = [](const array<point, rays>& raycasts,
                          const agent& curplayer, ftype& a, ftype& steer) {};

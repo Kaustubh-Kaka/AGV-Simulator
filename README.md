@@ -10,7 +10,7 @@ This library provides a visual interface and an API for programming, testing and
 Installation
 ----------------------
 
-raylib must be installed and added to PATH first, for instructions on how to do that refer to [raylib's README](https://github.com/raysan5/raylib). Now clone this repository and compile main.cpp while linking with OpenGL and raylib(depending on your OS this might be implicit)
+raylib must be installed and added to PATH first, for instructions on how to do that refer to [raylib's README](https://github.com/raysan5/raylib). Now clone this repository and compile main.cpp while linking with OpenGL and raylib(depending on your OS this might be implicit), if you're on windows prefer using wsl with g++ for compilation
 
 ```bash
 touch simulation
