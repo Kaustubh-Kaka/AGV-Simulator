@@ -58,7 +58,6 @@ class agent {
 class simulationinstance {
     string debuglog;
 
-    envmap mp;
     array<agent, playercount> players;
     array<pair<point, point>, playercount> pdata;
 
@@ -83,6 +82,9 @@ class simulationinstance {
     }
 
     void update() {
+        for (int i = 0; i < mp.size() - 1; i++)
+            movementspecifier[i](mp[i], currenttime);
+
         for (int i = 0; i < playercount; i++) {
             players[i].calculate_1(mp, pdata, raycastagent(players[i]),
                                    players[i], players[i].acceleration,
@@ -108,12 +110,18 @@ class simulationinstance {
     }
 
    public:
+    envmap mp;
+    vector<function<void(shape&, const ftype&)>> movementspecifier;
+
     bool humanmode, visualmode, blind;
     int currentactive;
 
     simulationinstance(const array<agent, playercount>& playerlist,
                        const ftype& en) {
         mp = genobs(10, 0.1, 10);
+        auto nomovement = [](vector<point>& obstacle, const ftype& curtime) {};
+        movementspecifier.assign(mp.size(), nomovement);
+
         players = playerlist;
         endtime = en, currenttime = 0, collision = false, humanmode = true,
         visualmode = true, blind = false, currentactive = 0;

@@ -10,18 +10,34 @@ This library provides a visual interface and an API for programming, testing and
 Installation
 ----------------------
 
-raylib must be installed and added to PATH first, for instructions on how to do that refer to [raylib's README](https://github.com/raysan5/raylib). Now clone this repository and compile main.cpp while linking with OpenGL and raylib(depending on your OS this might be implicit), if you're on windows prefer using wsl with g++ for compilation
+raylib must be installed and added to PATH first, for instructions on how to do that refer to [raylib's README](https://github.com/raysan5/raylib). Now clone this repository and compile main.cpp while linking with OpenGL and raylib(depending on your OS this might be implicit)
 
 ```bash
-touch simulation
-cd simulation
+brew install raylib
+touch simulation; cd simulation
 git clone https://github.com/Kaustubh-Kaka/AGV-Simulator.git
 ```
 
-If you are using an Apple silicon Mac and installed raylib with homebrew, your compilation command should look something like this
+If you are using a Mac and installed raylib with homebrew, your compilation command should look something like this
 
 ```bash
 clang++ main.cpp -O3 -o rendered -I /opt/homebrew/include -L /opt/homebrew/lib -lraylib -framework OpenGL -framework Cocoa -framework IOKit
+```
+
+If you are using Linux or wsl you can install raylib directly from source into the cloned repository
+
+```bash
+touch simulation; cd simulation
+git clone https://github.com/Kaustubh-Kaka/AGV-Simulator.git
+cd AGV-Simulator
+git clone https://github.com/raysan5/raylib.git
+cd raylib; mkdir build; cd build
+CC=gcc CXX=g++ cmake ..
+cd ../src
+make
+cd ../..
+g++ main.cpp -O3 -o rendered -Iraylib/src -Lraylib/src -lraylib -lGL -lm -lpthread -ldl -lrt -lX11 -lXrandr -lXi -lXinerama -lXcursor
+./rendered
 ```
 
 You first need to create the agents in the simulation
