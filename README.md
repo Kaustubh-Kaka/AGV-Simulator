@@ -50,7 +50,7 @@ You first need to create the agents in the simulation
 int main() {
     
     agent myagent;
-    myagent.calculate =
+    myagent.calculate_1 =
         [&](const envmap& curmap,
             const array<pair<point, point>, playercount>& playerdata,
             const array<point, rays>& raycasts, const agent& curplayer,
@@ -95,6 +95,44 @@ int main() {
 ```
 
 You also need to specify a map to run the simulation that you can choose to create yourself or use the given random map generator for, please note that the raycasting algorithm only handles convex obstacles and in general `shape = vector<point>` is assumed to be a convex polygon, if you wish to use nonconvex polygons please decompose them into convex polygons first. The random map generator guarantees non intersecting convex obstacles given an initial random seed.
+
+ The simulator also supports dynamic obstacles, all obstacles are dynamic by default and their motion can be specified by `s.movementspecifier` which is a `std::vector<function<void(vector<point>&, const ftype&)>>` the function defined is called at each time step and used to update obstacle arbitrarily, it's recommended however that the function only do rotation and translation.
+
+ ```c
+#include "draw.hpp"
+#include "geometry.hpp"
+#include "simulation.hpp"
+
+int main() {
+    // the planners can share data by writing to and reading from variables
+    // defined here
+
+    agent myagent;
+    myagent.calculate_1 =
+        [&](const envmap& curmap,
+            const array<pair<point, point>, playercount>& playerdata,
+            const array<point, rays>& raycasts, const agent& curplayer,
+            ftype& a, ftype& steer) {
+            // write you planning logic here
+        };
+
+    array<agent, playercount> myagents;
+    for (int i = 0; i < playercount; i++) myagents[i] = myagent;
+
+    ftype simultime = 30;
+
+    simulationinstance s(myagents, simultime);
+    const ftype T = 3, A = 0.01;
+
+    s.movementspecifier[0] = [&](vector<point>& a, const ftype curtime) {
+        a = A * point(cos(2 * PI * curtime / T), 0) + a;
+    };
+
+    s.run();
+
+    return 0;
+}
+ ```
 
 For a more detailed and complete documentation of the library helper functions you can refer to the in code comments next to the forward declerations.
 
