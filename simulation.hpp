@@ -57,6 +57,7 @@ class agent {
 
 class simulationinstance {
     string debuglog;
+    vector<vector<bool>> pcollidemat, obscollidemat;
 
     array<agent, playercount> players;
     array<pair<point, point>, playercount> pdata;
@@ -86,27 +87,78 @@ class simulationinstance {
             movementspecifier[i](mp[i], currenttime);
 
         for (int i = 0; i < playercount; i++) {
-            players[i].calculate_1(mp, pdata, raycastagent(players[i]),
-                                   players[i], players[i].acceleration,
-                                   players[i].steer);
+            if (!humanmode)
+                players[i].calculate_1(mp, pdata, raycastagent(players[i]),
+                                       players[i], players[i].acceleration,
+                                       players[i].steer);
             pdata[i].first = players[i].r,
             pdata[i].second = point(players[i].v, players[i].theta);
         }
+
         for (int i = 0; i < playercount; i++) players[i].update();
         currenttime += dt;
     }
 
     void collidecheck() {
-        for (int i = 0; i < playercount && !collision; i++)
-            for (int j = i + 1; j < playercount && !collision; j++)
-                if (intersect(players[i].egogeometry, players[j].egogeometry))
-                    collision = true;
+        for (int i = 0; i < playercount; i++)
+            for (int j = i + 1; j < playercount; j++)
+                if (intersect(players[i].r + players[i].egogeometry,
+                              players[j].r + players[j].egogeometry))
+                    collision = true, pcollidemat[i][j] = true;
 
-        for (int i = 0; i < playercount && !collision; i++)
-            for (int j = 0; j < mp.size() && !collision; j++)
-                if (intersect(players[i].egogeometry, mp[j])) {
-                    collision = true;
+        for (int i = 0; i < playercount; i++)
+            for (int j = 0; j < mp.size(); j++)
+                if (intersect(players[i].r + players[i].egogeometry, mp[j]))
+                    collision = true, obscollidemat[i][j] = true;
+    }
+
+    void draw(int rcagent = -1) {
+        for (int i = 0; i < mp.size(); i++) drawpolygonboundary(mp[i]);
+
+        if (rcagent >= 0 && rcagent < playercount) {
+            for (int i = 0; i < playercount; i++)
+                if (i == currentactive) {
+                    array<point, rays> currentagentcasts =
+                        raycastagent(players[i]);
+
+                    for (int j = 0; j < rays; j++)
+                        drawline(players[i].r, currentagentcasts[j]),
+                            drawpoint(currentagentcasts[j], GREEN);
                 }
+        }
+
+        for (int i = 0; i < playercount; i++) players[i].draw();
+    }
+
+    void keyboardinput() {
+        for (int i = KEY_ONE; i <= KEY_NINE; i++)
+            if (IsKeyPressed(i)) currentactive = i - KEY_ONE;
+        if (IsKeyDown(KEY_UP)) players[currentactive].acceleration = acceldelta;
+        if (IsKeyDown(KEY_DOWN))
+            players[currentactive].acceleration = -acceldelta;
+        if (IsKeyDown(KEY_LEFT)) players[currentactive].steer = steerdelta;
+        if (IsKeyDown(KEY_RIGHT)) players[currentactive].steer = -steerdelta;
+
+        if (IsKeyReleased(KEY_UP)) players[currentactive].acceleration = 0;
+        if (IsKeyReleased(KEY_DOWN)) players[currentactive].acceleration = 0;
+        if (IsKeyReleased(KEY_LEFT)) players[currentactive].steer = 0;
+        if (IsKeyReleased(KEY_RIGHT)) players[currentactive].steer = 0;
+    }
+
+    void log() {
+        for (int i = 0; i < playercount; i++)
+            for (int j = 0; j < playercount; j++)
+                if (pcollidemat[i][j])
+                    debuglog += "Collision between player " + to_string(i + 1) +
+                                " and player " + to_string(j + 1) + '\n';
+
+        for (int i = 0; i < playercount; i++)
+            for (int j = 0; j < mp.size() - 1; j++)
+                if (obscollidemat[i][j])
+                    debuglog += "Collision between player " + to_string(i + 1) +
+                                " and obstacle " + to_string(j + 1) + '\n';
+
+        cout << debuglog;
     }
 
    public:
@@ -119,6 +171,10 @@ class simulationinstance {
     simulationinstance(const array<agent, playercount>& playerlist,
                        const ftype& en) {
         mp = genobs(10, 0.1, 10);
+
+        pcollidemat.assign(playercount, vector<bool>(playercount, false));
+        obscollidemat.assign(playercount, vector<bool>(mp.size(), false));
+
         auto nomovement = [](vector<point>& obstacle, const ftype& curtime) {};
         movementspecifier.assign(mp.size(), nomovement);
 
@@ -136,60 +192,24 @@ class simulationinstance {
                 ClearBackground(BLACK);
 
                 if (humanmode) {
-                    for (int i = KEY_ONE; i <= KEY_NINE; i++)
-                        if (IsKeyPressed(i)) currentactive = i - KEY_ONE;
-                    if (IsKeyDown(KEY_UP))
-                        players[currentactive].acceleration = acceldelta;
-                    if (IsKeyDown(KEY_DOWN))
-                        players[currentactive].acceleration = -acceldelta;
-                    if (IsKeyDown(KEY_LEFT))
-                        players[currentactive].steer = steerdelta;
-                    if (IsKeyDown(KEY_RIGHT))
-                        players[currentactive].steer = -steerdelta;
+                    keyboardinput();
+                    draw(currentactive);
 
-                    if (IsKeyReleased(KEY_UP))
-                        players[currentactive].acceleration = 0;
-                    if (IsKeyReleased(KEY_DOWN))
-                        players[currentactive].acceleration = 0;
-                    if (IsKeyReleased(KEY_LEFT))
-                        players[currentactive].steer = 0;
-                    if (IsKeyReleased(KEY_RIGHT))
-                        players[currentactive].steer = 0;
-
-                    for (int i = 0; i < mp.size(); i++)
-                        drawpolygonboundary(mp[i]);
-
-                    for (int i = 0; i < playercount; i++)
-                        if (i == currentactive) {
-                            array<point, rays> currentagentcasts =
-                                raycastagent(players[i]);
-
-                            for (int j = 0; j < rays; j++)
-                                drawline(players[i].r, currentagentcasts[j]),
-                                    drawpoint(currentagentcasts[j], GREEN);
-                        }
-
-                    for (int i = 0; i < playercount; i++) players[i].draw();
-
-                    raycastagent(players[0]);
-                    update();
+                    update(), collidecheck();
 
                 } else {
-                    for (int i = 0; i < mp.size(); i++)
-                        drawpolygonboundary(mp[i]);
-
-                    for (int i = 0; i < playercount; i++) players[i].draw();
-                    update();
+                    draw();
+                    update(), collidecheck();
                 }
 
                 DrawFPS(10, 10);
                 EndDrawing();
             }
             CloseWindow();
+        } else
+            while (currenttime < endtime) update(), collidecheck();
 
-        } else {
-            while (currenttime < endtime) update();
-        }
+        log();
     }
 
     ~simulationinstance() {}
