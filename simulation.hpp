@@ -13,7 +13,7 @@ using data = pair<envmap, array<pair<point, point>, playercount>>;
 ftype clip(ftype val, ftype lim) {
     if (abs(val) < lim)
         return val;
-    else if (val < -lim)
+    else if (val <= -lim)
         return -lim;
     else
         return lim;

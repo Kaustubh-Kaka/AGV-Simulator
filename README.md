@@ -55,7 +55,7 @@ int main() {
             const array<pair<point, point>, playercount>& playerdata,
             const array<point, rays>& raycasts, const agent& curplayer,
             ftype& a, ftype& steer) {
-            // write you planning logic here
+            // write your planning logic here
         };
 
     return 0;
@@ -79,7 +79,7 @@ int main() {
             const array<pair<point, point>, playercount>& playerdata,
             const array<point, rays>& raycasts, const agent& curplayer,
             ftype& a, ftype& steer) {
-            // write you planning logic here
+            // write your planning logic here
         };
 
     array<agent, playercount> myagents;
@@ -113,7 +113,7 @@ int main() {
             const array<pair<point, point>, playercount>& playerdata,
             const array<point, rays>& raycasts, const agent& curplayer,
             ftype& a, ftype& steer) {
-            // write you planning logic here
+            // write your planning logic here
         };
 
     array<agent, playercount> myagents;
