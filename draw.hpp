@@ -45,7 +45,7 @@ void drawscatter(const vector<point>& a, const Color& c) {
 void drawpolygon(const vector<point>& a, const Color& fc) {
     const int n = a.size();
     for (int i = 1; i < n - 1; i++)
-        DrawTriangle(transfer(a[0]), transfer(a[i]), transfer(a[i + 1]), fc);
+        DrawTriangle(transfer(a[0]), transfer(a[i + 1]), transfer(a[i]), fc);
 }  // depends on nothing
 
 void drawpolygonboundary(const vector<point>& a, const Color c) {
